@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type='text/javascript'>
+
+	var ismousedown = 0;
+	function mousedown(event) {
+		var canvas=document.getElementById("mojCanvas");
+		var x = event.clientX;
+		var y = event.clientY;
+		
+		x -= canvas.offsetLeft;
+		y -= canvas.offsetTop;
+		
+		var context = canvas.getContext('2d');
+		context.rect(x,y,2,2);
+		context.stroke();
+
+		ismousedown = 1;
+	}
+	
+	function mousemove(event){
+		if(ismousedown == 1){
+			var canvas=document.getElementById("mojCanvas");
+			var x = event.clientX;
+			var y = event.clientY;
+		
+			x -= canvas.offsetLeft;
+			y -= canvas.offsetTop;
+		
+			var context = canvas.getContext('2d');
+			context.rect(x,y,2,2);
+			context.stroke();
+		}
+	}
+	
+	function mouseup(event){
+		ismousedown = 0;
+	}
+	
+	function init(){
+		var canvas=document.getElementById("mojCanvas");
+		canvas.onmousedown = mousedown;
+		canvas.onmousemove = mousemove;
+		canvas.onmouseup = mouseup;
+    }
+	
+</script>
+</head>
+<body onLoad="init();">
+	<canvas id="mojCanvas" width="400" height="400" style="border:1px solid #000000;">
+</canvas>
+</body>
+</html>
