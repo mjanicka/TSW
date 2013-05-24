@@ -38,17 +38,44 @@
 		ismousedown = 0;
 	}
 	
+	
+    function czat(event){
+		if(event.keyCode == 13){
+			wyslij();	
+		}
+	}
+	
+	function wyslij(){
+		var tekst=document.getElementById("wiadomosc");
+			var poleczat=document.getElementById("czat");
+			
+			poleczat.innerHTML+="ja: " + tekst.value + "\n";
+			tekst.value="";	
+	}
+	
 	function init(){
 		var canvas=document.getElementById("mojCanvas");
+		var wpisz=document.getElementById("wiadomosc");
 		canvas.onmousedown = mousedown;
 		canvas.onmousemove = mousemove;
 		canvas.onmouseup = mouseup;
+		wpisz.onkeyup=czat;
     }
+    
 	
 </script>
 </head>
 <body onLoad="init();">
-	<canvas id="mojCanvas" width="400" height="400" style="border:1px solid #000000;">
-</canvas>
+	<div width="100" height="500" style="float:left">
+		<canvas id="mojCanvas" width="800" height="600" style="border:1px solid #000000;"/>
+	</div>
+	<div width="1000" height="1000">
+		
+			<textarea name="czat" id="czat" cols="50" rows="20"></textarea>
+			<br />
+			<input type="text" id="wiadomosc" style="width: 420px"/>
+			<button onclick="wyslij()" />
+		
+	</div>
 </body>
 </html>
