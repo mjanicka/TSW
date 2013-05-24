@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type='text/javascript'>
+
+	function wezPozycje(event) {
+		var canvas=document.getElementById("mojCanvas");
+		var x = event.clientX;
+		var y = event.clientY;
+		
+		x -= canvas.offsetLeft;
+		y -= canvas.offsetTop;
+		
+		var context = canvas.getContext('2d');
+		context.beginPath();
+		context.rect(x,y,2,2);
+		context.stroke();
+		//alert("x:" + x + "y:" + y);
+	}
+	
+	function init(){
+		var canvas=document.getElementById("mojCanvas");
+		canvas.onmousedown = wezPozycje;
+    }
+	
+</script>
+</head>
+<body onLoad="init();">
+	<canvas id="mojCanvas" width="400" height="400" style="border:1px solid #000000;">
+</canvas>
+</body>
+</html>
