@@ -64,17 +64,26 @@
                 var figura = document.getElementById("figura");
                 var x = event.clientX;
                 var y = event.clientY;
-
+				var radius = x - downX;	
                 x -= canvas.offsetLeft;
                 y -= canvas.offsetTop;
 
                 switch (figura.value) {
                 case "prostokąt":
-                
                     context.rect(downX, downY, x - downX, y - downY);
                     context.stroke();
-                    
-                    break;
+                break;
+                
+                case "koło":
+					context.arc(downX, downY, radius, x, y, false);
+					context.stroke();
+				break;
+				
+				case "linia":
+					context.moveTo(downX, downY);
+					context.lineTo(x , y);
+					context.stroke();
+				break;
                 }
             }
 
