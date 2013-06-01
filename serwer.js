@@ -8,20 +8,46 @@ var fs = require('fs'),
             var action = request.pathname;
 
             if (action == '/') {
-                var login = fs.readFileSync('./logowanie.html');
+                var strona = fs.readFileSync('./logowanie.html');
                 res.writeHead(200, {
                         'Content-Type': 'text/html'
                     });
-                res.write(login);
+                res.write(strona);
                 res.end();
             }
             if (action == '/login') {
-                var login = fs.readFileSync('./polerysuj.html');
-                res.writeHead(200, {
-                        'Content-Type': 'text/html'
-                    });
-                res.write(login);
-                res.end();
+				if( req.session ){
+					console.log( req.session );
+				}				
+				var post;
+                req.on('data', function (data) {
+					var tmp = "" + data;
+					post = require( "querystring" ).parse(tmp);
+					
+					var baza = require("mongojs").connect("kalambury",["uzytkownicy"]);
+					var wynik = baza.uzytkownicy.find( { login: post.login }, function( err, user ){
+						if( user[0] ){
+							if(user[0].haslo == post.haslo) {
+								req.session.user = user[0].login;
+								var strona = fs.readFileSync('./polerysuj.html');
+								res.writeHead(200, {
+								'Content-Type': 'text/html'
+								});
+								res.write(strona);
+								res.send();
+							}
+						}
+						var strona = fs.readFileSync('./logowanie.html');
+						res.writeHead(200, {
+						'Content-Type': 'text/html; charset=utf-8'
+						});	
+						res.write("<p style=\"color:red\">zły login bądź hasło</p>");
+						res.write(strona);
+						res.end();
+					});
+				});
+                
+                
             }
         });
 server.listen(8080);
