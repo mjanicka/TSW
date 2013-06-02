@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-        <script type="text/javascript" src="http://localhost:8080/socket.io/socket.io.js"></script>
+        <script type="text/javascript" src="http://localhost:8081/socket.io/socket.io.js"></script>
         <script type='text/javascript'>
             var downX;
             var downY;
@@ -88,7 +88,7 @@
             }
 
             function doserwera(text) {
-                var socket = new io.connect('http://localhost:8080');
+                var socket = new io.connect('http://localhost:8081');
 
                 socket.on('connect', function () {
                         socket.send(text);
@@ -110,6 +110,10 @@
                     wyslij();
                 }
             }
+            
+            function wyloguj() {
+				window.location = "/logout";
+			}
 
             function init() {
                 var canvas = document.getElementById("mojCanvas");
@@ -144,8 +148,8 @@
             <canvas id="mojCanvas" width="800" height="600" style="border:1px solid #000000;" />
         </div>
         <div width="1000" height="1000">
-			<button id="wyloguj">wyloguj sie</button><br />
-            <textarea name="czat" id="czat" cols="50" rows="20"></textarea>
+			<button onClick="wyloguj()" id="wyloguj">wyloguj sie</button><br />
+            <textarea readonly name="czat" id="czat" cols="50" rows="20"></textarea>
             <br />
             <input type="text" id="wiadomosc" style="width: 420px" />
             <button onclick="wyslij()" />
