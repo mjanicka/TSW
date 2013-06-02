@@ -4,7 +4,7 @@ var fs = require('fs'),
     url = require('url'),
     express = require('express'),
 
-    server = express();
+    server = express(), clients = new Array();
 
 server.configure(function(){
 	server.use(express.cookieParser()); 
@@ -30,8 +30,10 @@ server.post( '/login', function( req, res ){
 			var strona = fs.readFileSync('./polerysuj.html');
 			req.session.login = req.body.login;
 			res.writeHead(200, {
-				'Content-Type': 'text/html; charset=utf-8'	
+				'Content-Type': 'text/html; charset=utf-8',
+				'Set-Cookie': 'username=' + req.body.login
 			});
+			
 			res.write(strona);
 			res.send();
 		}
@@ -99,7 +101,11 @@ var	httpserv = http.createServer(server).listen(8081),
 	socket = io.listen(httpserv);
 socket.on('connection', function (client) {
         console.log('connected');
+        clients.push(client);
         client.on('message', function (msg) {
                 console.log(msg);
-            });
-    });
+                clients.forEach(function(c) {
+					c.send(msg);
+				});
+        });
+ });

@@ -9,7 +9,23 @@
             var downX;
             var downY;
             var ismousedown = 0;
+            var socket = new io.connect('http://localhost:8081');
+            function getCookie (name) {
+				var result = null;
+				var cookies = document.cookie.split("; ");
+				cookies.forEach(function(cookie) {
+					var tmp = cookie.split("=");
+					if(tmp[0] == name) {
+						result = "" + tmp[1];
+					}
+				});
+				return result;
 
+			}
+            
+            var username = getCookie("username");
+           
+           
             function mousedown(event) {
                 var canvas = document.getElementById("mojCanvas");
                 var context = canvas.getContext('2d');
@@ -88,11 +104,7 @@
             }
 
             function doserwera(text) {
-                var socket = new io.connect('http://localhost:8081');
-
-                socket.on('connect', function () {
-                        socket.send(text);
-                    });
+				socket.send(text);
             }
 
 
@@ -100,8 +112,7 @@
                 var tekst = document.getElementById("wiadomosc");
                 var poleczat = document.getElementById("czat");
 
-                doserwera(tekst.value);
-                poleczat.innerHTML += "ja: " + tekst.value + "\n";
+                doserwera( username + ": " + tekst.value + "\n" );
                 tekst.value = "";
             }
 
@@ -118,11 +129,20 @@
             function init() {
                 var canvas = document.getElementById("mojCanvas");
                 var wpisz = document.getElementById("wiadomosc");
+                var czat = document.getElementById("czat");
                 canvas.onmousedown = mousedown;
                 canvas.onmousemove = mousemove;
                 canvas.onmouseup = mouseup;
                 wpisz.onkeyup = czat;
+                
 
+				socket.on('message', function (msg) {
+					alert("sock: " + msg);
+					czat.innerHTML += msg;
+				});
+   
+     
+				 
             }
         </script>
     </head>
