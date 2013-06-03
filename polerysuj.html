@@ -10,6 +10,7 @@
             var downY;
             var ismousedown = 0;
             var socket = new io.connect('http://localhost:8081');
+            
             function getCookie (name) {
 				var result = null;
 				var cookies = document.cookie.split("; ");
@@ -106,7 +107,7 @@
             }
 
             function doserwera(text) {
-		socket.send(text);
+				socket.send(text);
             }
 
 
@@ -114,7 +115,7 @@
                 var tekst = document.getElementById("wiadomosc");
                 var poleczat = document.getElementById("czat");
 
-                doserwera( id + ": " + tekst.value + "\n" );
+                doserwera( tekst.value );
                 tekst.value = "";
             }
 
@@ -126,7 +127,7 @@
             
             function wyloguj() {
 	    	socket.emit( 'logout', '' );
-		window.location = "/logout";
+			window.location = "/logout";
 	    }
 
 	    function enableDrawing(){
@@ -148,10 +149,13 @@
                 var wpisz = document.getElementById("wiadomosc");
                                 
                 wpisz.onkeyup = czat;
+                
 				socket.emit( "start-connection", userid );
+				
 				socket.on('message', function (msg) {
 					czat.innerHTML += msg;
 				});
+				
 				socket.on('start-drawing', function(thing){
 					czat.innerHTML += "Zaczynasz grę, narysuj " + thing + "\n";
 					enableDrawing();
@@ -160,6 +164,9 @@
 				socket.on('end-game', function(message){
 					czat.innerHTML += message + "\n";
 					disableDrawing();
+					
+					var canvas = document.getElementById("mojCanvas");
+					canvas.width = canvas.width;
 				});
 				
 				socket.on('punkt', function(wspolrzedne) {

@@ -1,11 +1,13 @@
 var fs = require('fs'),
     http = require('http'),
     io = require('socket.io'),
-    url = require('url'),
     express = require('express'),
 
-    server = express(), players= new Object(),
-    currentPlayer = null, playersCount = 0, currentWord = null;
+    server = express(),
+    players= new Object(),
+    currentPlayer = null,
+    playersCount = 0,
+    currentWord = null;
 
 function randomString( len ){
 	var result = "";
@@ -33,7 +35,6 @@ server.configure(function(){
 });
 
 server.get('/', function( req, res ){
- 	console.log( "session: " + req.session.login );
         var strona = fs.readFileSync('./logowanie.html');
         res.writeHead(200, {
 	        'Content-Type': 'text/html'
@@ -99,8 +100,11 @@ server.post( '/register', function( req, res ){
 			else {
 				baza.uzytkownicy.insert({login:req.body.loginrej, haslo:req.body.haslorej});
 				var strona = fs.readFileSync('./polerysuj.html');
+				var userid = randomString(5);
+				players[userid] = {name: req.body.loginrej};
 				res.writeHead(200, {
-					'Content-Type': 'text/html; charset=utf-8'	
+					'Content-Type': 'text/html; charset=utf-8',	
+					'Set-Cookie': 'userid=' + userid
 				});
 				res.write("użytkownik został dodany");
 				res.write(strona);
@@ -126,32 +130,49 @@ var	httpserv = http.createServer(server).listen(8081),
 
 socket.on('connection', function (client) {
 	var clientUID = null;
-        console.log('connected');
-        client.on('start-connection', function (userid) {
+	
+	function startNewGame(){
+		var playerNum = Math.floor( Math.random() * playersCount );
+		var playerIds = Object.keys( players );
+		currentPlayer = playerIds[playerNum];
+		playerIds.forEach( function(pid){
+			console.log ( "test: " + pid );
+			if( pid == currentPlayer ){
+				currentWord = randomWord();
+				players[pid]["sock"].emit( "start-drawing", currentWord );
+			} else{
+				players[pid]["sock"].emit( "message", players[currentPlayer]["name"] +
+					" zaczyna rysować.\n" );
+			}
+		});
+	}
+		
+    client.on('start-connection', function (userid) {
 		clientUID = userid;
-                console.log( 'new userid: ' + userid );
-		console.log( "logged in " + players[userid]["name"] + "\n" );
 		players[userid]["sock"] = client;
 		client.emit( "message", "Witaj " + players[userid]["name"] + ".\n" );
 		playersCount ++;
-
-		console.log( currentPlayer + " " + playersCount );
-
+		
 		if( currentPlayer == null && playersCount > 1 ){
-			var playerNum = Math.floor( Math.random() * playersCount );
-			var playerIds = Object.keys( players );
-			currentPlayer = playerIds[playerNum];
-			playerIds.forEach( function(pid){
-				console.log ( "test: " + pid );
-				if( pid == currentPlayer ){
-					players[pid]["sock"].emit( "start-drawing", randomWord() );
-				} else{
-					players[pid]["sock"].emit( "message", players[currentPlayer]["name"] +
-						" zaczyna rysować." );
-				}
+			startNewGame();
+		}
+	});
+
+	client.on( 'message', function(text){
+		if(text == currentWord){
+			var ids = Object.keys(players);
+			ids.forEach(function(id){
+				players[id]["sock"].emit("end-game", "gracz " + players[id]["name"] + " odgadł hasło: " + currentWord);
+			});
+			startNewGame();
+		}
+		else {
+			var ids = Object.keys(players);
+			ids.forEach(function(id){
+				players[id]["sock"].emit('message', players[clientUID]["name"] + ": " + text + "\n");
 			});
 		}
-        });
+	});
 	
 	client.on('punkt', function(wspolrzedne){
 		Object.keys(players).forEach(function(id) {
@@ -162,9 +183,9 @@ socket.on('connection', function (client) {
 	});
 	
 	client.on('logout', function(){
-		var playerName = players[clientUID]["name"];
 		delete players[clientUID];
-		if( playersCount-- == 1 ){
+
+		if( --playersCount == 1 ){
 			players[Object.keys(players)[0]]["sock"].emit( "end-game", "Pozostali użytkownicy opuścili grę, gra zostaje przerwana." );
 			currentPlayer = null;
 		} else if( clientUID == currentPlayer ){
@@ -172,6 +193,7 @@ socket.on('connection', function (client) {
 				players[playerID]["sock"].emit( "end-game", "Rysujący opuścił grę, gra zostaje przerwana." );
 				currentPlayer = null;
 			});
+			startNewGame();
 		}
 	});
  });
