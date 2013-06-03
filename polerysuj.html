@@ -23,7 +23,7 @@
 
 			}
             
-            var username = getCookie("username");
+            var userid = getCookie("userid");
            
            
             function mousedown(event) {
@@ -49,6 +49,7 @@
                 if (figura.value == "punkt") {
                     context.rect(x, y, 2, 2);
                     context.stroke();
+                    socket.emit('punkt',[x,y, context.strokeStyle]);
                 }
 
                 ismousedown = 1;
@@ -68,6 +69,7 @@
                     if (figura.value == "punkt") {
                         context.rect(x, y, 2, 2);
                         context.stroke();
+                        socket.emit('punkt',[x,y, context.strokeStyle]);
                     }
                 }
             }
@@ -104,7 +106,7 @@
             }
 
             function doserwera(text) {
-				socket.send(text);
+		socket.send(text);
             }
 
 
@@ -112,7 +114,7 @@
                 var tekst = document.getElementById("wiadomosc");
                 var poleczat = document.getElementById("czat");
 
-                doserwera( username + ": " + tekst.value + "\n" );
+                doserwera( id + ": " + tekst.value + "\n" );
                 tekst.value = "";
             }
 
@@ -123,26 +125,52 @@
             }
             
             function wyloguj() {
-				window.location = "/logout";
-			}
+	    	socket.emit( 'logout', '' );
+		window.location = "/logout";
+	    }
 
-            function init() {
-                var canvas = document.getElementById("mojCanvas");
-                var wpisz = document.getElementById("wiadomosc");
-                var czat = document.getElementById("czat");
+	    function enableDrawing(){
+	    	var canvas = document.getElementById("mojCanvas");
                 canvas.onmousedown = mousedown;
                 canvas.onmousemove = mousemove;
                 canvas.onmouseup = mouseup;
-                wpisz.onkeyup = czat;
-                
+	    }
 
+	    function disableDrawing(){
+	    	var canvas = document.getElementById("mojCanvas");
+                canvas.onmousedown = null;
+                canvas.onmousemove = null;
+                canvas.onmouseup = null;
+	    }
+
+            function init() {
+                var czat = document.getElementById("czat");
+                var wpisz = document.getElementById("wiadomosc");
+                                
+                wpisz.onkeyup = czat;
+				socket.emit( "start-connection", userid );
 				socket.on('message', function (msg) {
-					alert("sock: " + msg);
 					czat.innerHTML += msg;
 				});
-   
-     
-				 
+				socket.on('start-drawing', function(thing){
+					czat.innerHTML += "Zaczynasz grę, narysuj " + thing + "\n";
+					enableDrawing();
+				});
+
+				socket.on('end-game', function(message){
+					czat.innerHTML += message + "\n";
+					disableDrawing();
+				});
+				
+				socket.on('punkt', function(wspolrzedne) {
+					var canvas = document.getElementById("mojCanvas");
+					var context = canvas.getContext('2d');
+					
+					context.rect(wspolrzedne[0], wspolrzedne[1], 2, 2);
+					context.strokeStyle = wspolrzedne[2];
+                    context.stroke();
+				});
+   				 
             }
         </script>
     </head>
