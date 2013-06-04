@@ -5,200 +5,25 @@
         <meta charset="UTF-8">
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
         <script type="text/javascript" src="http://localhost:8081/socket.io/socket.io.js"></script>
-        <script type='text/javascript'>
-            var downX;
-            var downY;
-            var ismousedown = 0;
-            var socket = new io.connect('http://localhost:8081');
-            
-            function getCookie (name) {
-				var result = null;
-				var cookies = document.cookie.split("; ");
-				cookies.forEach(function(cookie) {
-					var tmp = cookie.split("=");
-					if(tmp[0] == name) {
-						result = "" + tmp[1];
-					}
-				});
-				return result;
-
-			}
-            
-            var userid = getCookie("userid");
-           
-           
-            function mousedown(event) {
-                var canvas = document.getElementById("mojCanvas");
-                var context = canvas.getContext('2d');
-                var kolor = document.getElementById("kolor");
-                var figura = document.getElementById("figura");
-                var x = event.clientX;
-                var y = event.clientY;
-
-                x -= canvas.offsetLeft;
-                y -= canvas.offsetTop;
-
-                downX = x;
-                downY = y;
-
-                context.beginPath();
-
-                if (kolor.value) {
-                    context.strokeStyle = kolor.value;
-                }
-
-                if (figura.value == "punkt") {
-                    context.rect(x, y, 2, 2);
-                    context.stroke();
-                    socket.emit('punkt',[x,y, context.strokeStyle]);
-                }
-
-                ismousedown = 1;
-            }
-
-            function mousemove(event) {
-                if (ismousedown == 1) {
-                    var canvas = document.getElementById("mojCanvas");
-                    var context = canvas.getContext('2d');
-                    var figura = document.getElementById("figura");
-                    var x = event.clientX;
-                    var y = event.clientY;
-
-                    x -= canvas.offsetLeft;
-                    y -= canvas.offsetTop;
-
-                    if (figura.value == "punkt") {
-                        context.rect(x, y, 2, 2);
-                        context.stroke();
-                        socket.emit('punkt',[x,y, context.strokeStyle]);
-                    }
-                }
-            }
-
-            function mouseup(event) {
-                ismousedown = 0;
-
-                var canvas = document.getElementById("mojCanvas");
-                var context = canvas.getContext('2d');
-                var figura = document.getElementById("figura");
-                var x = event.clientX;
-                var y = event.clientY;
-				var radius = x - downX;	
-                x -= canvas.offsetLeft;
-                y -= canvas.offsetTop;
-
-                switch (figura.value) {
-                case "prostokąt":
-                    context.rect(downX, downY, x - downX, y - downY);
-                    context.stroke();
-                break;
-                
-                case "koło":
-					context.arc(downX, downY, radius, x, y, false);
-					context.stroke();
-				break;
-				
-				case "linia":
-					context.moveTo(downX, downY);
-					context.lineTo(x , y);
-					context.stroke();
-				break;
-                }
-            }
-
-            function doserwera(text) {
-				socket.send(text);
-            }
-
-
-            function wyslij() {
-                var tekst = document.getElementById("wiadomosc");
-                var poleczat = document.getElementById("czat");
-
-                doserwera( tekst.value );
-                tekst.value = "";
-            }
-
-            function czat(event) {
-                if (event.keyCode == 13) {
-                    wyslij();
-                }
-            }
-            
-            function wyloguj() {
-	    	socket.emit( 'logout', '' );
-			window.location = "/logout";
-	    }
-
-	    function enableDrawing(){
-	    	var canvas = document.getElementById("mojCanvas");
-                canvas.onmousedown = mousedown;
-                canvas.onmousemove = mousemove;
-                canvas.onmouseup = mouseup;
-	    }
-
-	    function disableDrawing(){
-	    	var canvas = document.getElementById("mojCanvas");
-                canvas.onmousedown = null;
-                canvas.onmousemove = null;
-                canvas.onmouseup = null;
-	    }
-
-            function init() {
-                var czat = document.getElementById("czat");
-                var wpisz = document.getElementById("wiadomosc");
-                                
-                wpisz.onkeyup = czat;
-                
-				socket.emit( "start-connection", userid );
-				
-				socket.on('message', function (msg) {
-					czat.innerHTML += msg;
-				});
-				
-				socket.on('start-drawing', function(thing){
-					czat.innerHTML += "Zaczynasz grę, narysuj " + thing + "\n";
-					enableDrawing();
-				});
-
-				socket.on('end-game', function(message){
-					czat.innerHTML += message + "\n";
-					disableDrawing();
-					
-					var canvas = document.getElementById("mojCanvas");
-					canvas.width = canvas.width;
-				});
-				
-				socket.on('punkt', function(wspolrzedne) {
-					var canvas = document.getElementById("mojCanvas");
-					var context = canvas.getContext('2d');
-					
-					context.rect(wspolrzedne[0], wspolrzedne[1], 2, 2);
-					context.strokeStyle = wspolrzedne[2];
-                    context.stroke();
-				});
-   				 
-            }
-        </script>
+        <script type='text/javascript' src="polerysuj.js"></script>
     </head>
     
     <body onLoad="init();">
         <div width="100" height="500" style="float:left">
             <form>
-                <input type='text' id='kolor' list='kolory'>
-                <datalist id='kolory'>
+                <select id='kolor' value="czarny">
                     <option value="#000000">czarny</option>
                     <option value="#FF0000">czerwony</option>
                     <option value="#0000FF">niebieski</option>
                     <option value="#00FF00">zielony</option>
-                    <option value="#FFFF00">żółty</option></datalist>
-                </input>
-                <input type='text' id='figura' list='figury'>
-                <datalist id='figury'>
-                    <option>prostokąt
-                        <option>koło
-                            <option>punkt
-                                <option>linia</datalist>
+                    <option value="#FFFF00">żółty</option>
+                </select>
+                <select id='figura' value="punkt">
+					<option>punkt</option>
+                    <option>prostokąt</option>
+                    <option>koło</option>
+                    <option>linia</option>
+                </select>
             </form>
             <canvas id="mojCanvas" width="800" height="600" style="border:1px solid #000000;" />
         </div>
