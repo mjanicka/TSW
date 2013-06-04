@@ -1,0 +1,33 @@
+#canvasDiv{
+	width:			800px;
+	height:			650px; 
+	float:			left;
+	margin-right:	10px;
+	margin-top:		10px;
+	margin-left:	10px;
+}
+
+#mojCanvas{
+	border:	1px solid #000000; 
+}
+
+#czatDiv{
+	float:		left;
+	width:		450px;
+	height:		500px;
+	margin-top:	10px; 
+}
+
+#logoutButton{
+	margin-left: 	360px;
+	margin-bottom: 	10px;
+}
+
+#czat{
+	width:	420px;
+	height: 500px;
+}
+
+#wiadomosc{
+	width: 420px;
+}

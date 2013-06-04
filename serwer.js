@@ -37,21 +37,15 @@ server.configure(function() {
     server.use(express.cookieParser());
     server.use(express.bodyParser());
     server.use(express.session({ secret: randomString(5) }));
+    server.use('/css', express.static(__dirname + '/css'));
+    server.use('/js', express.static(__dirname + '/js'));
+    server.use('/img', express.static(__dirname + '/img'));
 });
 
 server.get('/', function(req, res) {
     var strona = fs.readFileSync('./logowanie.html');
     res.writeHead(200, {
         'Content-Type': 'text/html'
-    });
-    res.write(strona);
-    res.send();
-});
-
-server.get('/polerysuj.js', function(req, res) {
-    var strona = fs.readFileSync('./polerysuj.js');
-    res.writeHead(200, {
-        'Content-Type': 'text/javascript'
     });
     res.write(strona);
     res.send();

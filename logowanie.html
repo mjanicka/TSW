@@ -1,33 +1,29 @@
 <!DOCTYPE html>
 <html>
-    
-    <head></head>
+    <head>
+		<meta charset="UTF-8">
+        <script type='text/javascript' src="js/bootstrap.min.js"></script>
+        <link rel="stylesheet" media="screen" href="css/bootstrap.min.css" />
+    </head>
     
     <body>
-        <form action='login' method='post'>
-            
-<h3>Logowanie</h3>
+		<div class="container" style="width:200px">
+			<form class="form-signin" action="login" method="post">
+				<h2 class="form-signin-heading">Logowanie</h2>
+				<input type="text" class="input-block-level" placeholder="login" name="login">
+				<input type="password" class="input-block-level" placeholder="haslo" name="haslo">
+				<button class="btn btn-large btn-primary" type="submit">Zaloguj</button>
+			</form>
 
-            <br />
-            <input type='text' id='login' name='login' />
-            <br />
-            <input type='password' id='haslo' name='haslo' />
-            <br />
-            <input type='submit' />
-        </form>
-        <br />
-        <form action='register' method='post'>
-            
-<h3>Rejestracja</h3>
+		</div>
 
-            <input type='text' id='loginrej' name='loginrej' />
-            <br />
-            <input type='password' id='haslorej' name='haslorej' />
-            <br />
-            <input type='password' id='powtorzhaslorej' name='powtorzhaslorej' />
-            <br />
-            <input type='submit' />
-        </form>
-    </body>
-
+		<div class="container" style="width:200px">
+			<form class="form-signin" action="register" method="post">
+				<h2 class="form-signin-heading">Rejestracja</h2>
+				<input type="text" class="input-block-level" placeholder="login" name="loginrej">
+				<input type="password" class="input-block-level" placeholder="haslo" name="haslorej">
+				<input type="password" class="input-block-level" placeholder="powtórz haslo" name="powtorzhaslorej">
+				<button class="btn btn-large btn-primary" type="submit">Zaloguj</button>
+			</form>
+		</div>
 </html>
